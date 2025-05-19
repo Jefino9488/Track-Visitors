@@ -1,23 +1,12 @@
 import express from 'express';
-import { Pool } from 'pg';
+import {pool} from "../server.mjs";
 
 const router = express.Router();
 
-// Database connection
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'visitorapp',
-  password: 'Jefino@1537',
-  port: '5432',
-});
-
-// Helper function to generate a 4-digit visitor number
 const generateVisitorNumber = () => {
   return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
-// Calculate expected out time based on visit duration
 const calculateExpectedOutTime = (inTime, duration) => {
   const inDate = new Date(inTime);
   switch (duration) {
@@ -38,7 +27,6 @@ const calculateExpectedOutTime = (inTime, duration) => {
   }
 };
 
-// Visitor sign-in
 router.post('/sign-in', async (req, res) => {
   const { fullName, apartmentNumber, vehicleInfo, purpose, visitDuration } = req.body;
 
@@ -74,7 +62,6 @@ router.post('/sign-in', async (req, res) => {
   }
 });
 
-// Visitor sign-out
 router.post('/sign-out', async (req, res) => {
   const { visitorNumber } = req.body;
 

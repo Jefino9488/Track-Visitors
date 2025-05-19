@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { visitorApi } from '../services/api';
-import '../App.css';
+import { visitorApi } from '@/services/api';
 
 const SignInPage = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -19,8 +18,7 @@ const SignInPage = () => {
       setVisitorData(response.data.data);
       setShowModal(true);
       reset();
-      
-      // Auto-close modal after 30 seconds
+
       setTimeout(() => {
         if (showModal) {
           setShowModal(false);

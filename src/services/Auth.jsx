@@ -1,8 +1,8 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 
-const AuthContext = createContext();
+const Auth = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(Auth);
 
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
@@ -45,5 +45,5 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!admin
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <Auth.Provider value={value}>{children}</Auth.Provider>;
 };

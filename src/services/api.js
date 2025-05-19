@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -10,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,20 +20,26 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Visitor API
 export const visitorApi = {
   signIn: (visitorData) => api.post('/visitors/sign-in', visitorData),
   signOut: (visitorNumber) => api.post('/visitors/sign-out', { visitorNumber }),
   getVisitor: (visitorNumber) => api.get(`/visitors/${visitorNumber}`),
 };
 
-// Admin API
 export const adminApi = {
   login: (credentials) => api.post('/admin/login', credentials),
   getVisitors: (page = 1, limit = 10, search = '') => 
     api.get('/admin/visitors', { 
       params: { page, limit, search } 
     }),
+  exportExcel: () => {
+    window.open(`${API_URL}/admin/export/excel`, '_blank');
+    return Promise.resolve({ success: true });
+  },
+  exportPdf: () => {
+    window.open(`${API_URL}/admin/export/pdf`, '_blank');
+    return Promise.resolve({ success: true });
+  },
+  sendExcelEmail: () => api.post('/admin/send-excel-email'),
+  deleteVisitor: (id) => api.delete(`/admin/visitors/${id}`),
 };
-
-export default api;

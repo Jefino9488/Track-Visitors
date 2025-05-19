@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { adminApi } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import '../App.css';
+import { adminApi } from '@/services/api';
+import { useAuth } from '@/services/Auth.jsx';
 
 const AdminLoginPage = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();

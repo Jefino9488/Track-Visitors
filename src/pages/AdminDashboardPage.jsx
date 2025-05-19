@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { adminApi } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import '../App.css';
+import { adminApi } from '@/services/api';
+import { useAuth } from '@/services/Auth.jsx';
+import { Modal, Button } from 'react-bootstrap';
 
 const AdminDashboardPage = () => {
   const [visitors, setVisitors] = useState([]);
@@ -15,6 +15,9 @@ const AdminDashboardPage = () => {
     total: 0,
     totalPages: 0
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [visitorToDelete, setVisitorToDelete] = useState(null);
+  const [emailSending, setEmailSending] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -27,7 +30,7 @@ const AdminDashboardPage = () => {
     } catch (error) {
       console.error('Error fetching visitors:', error);
       toast.error('Failed to fetch visitor data');
-      
+
       // If unauthorized, redirect to login
       if (error.response?.status === 401) {
         logout();
@@ -66,11 +69,77 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      await adminApi.exportExcel();
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      toast.error('Failed to export Excel file');
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      await adminApi.exportPdf();
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('Failed to export PDF file');
+    }
+  };
+
+  const handleSendEmail = async () => {
+    try {
+      setEmailSending(true);
+      await adminApi.sendExcelEmail();
+      toast.success('Email sent successfully');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error('Failed to send email');
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const openDeleteModal = (visitor) => {
+    setVisitorToDelete(visitor);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setVisitorToDelete(null);
+  };
+
+  const handleDeleteVisitor = async () => {
+    if (!visitorToDelete) return;
+
+    try {
+      await adminApi.deleteVisitor(visitorToDelete.id);
+      toast.success('Visitor deleted successfully');
+      fetchVisitors(pagination.page, pagination.limit, search);
+      closeDeleteModal();
+    } catch (error) {
+      console.error('Error deleting visitor:', error);
+      toast.error('Failed to delete visitor');
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <header className="dashboard-header">
         <h1>Admin Dashboard</h1>
         <div className="header-actions">
+          <div className="export-actions">
+            <button onClick={handleExportExcel} className="export-button">Export Excel</button>
+            <button onClick={handleExportPdf} className="export-button">Export PDF</button>
+            <button 
+              onClick={handleSendEmail} 
+              className="export-button" 
+              disabled={emailSending}
+            >
+              {emailSending ? 'Sending...' : 'Send Excel via Email'}
+            </button>
+          </div>
           <button onClick={handleLogout} className="logout-button">Logout</button>
         </div>
       </header>
@@ -97,7 +166,7 @@ const AdminDashboardPage = () => {
             <table className="visitors-table">
               <thead>
                 <tr>
-                  <th>Visitor #</th>
+                  <th>Visitor</th>
                   <th>Name</th>
                   <th>Apartment</th>
                   <th>Vehicle</th>
@@ -105,6 +174,7 @@ const AdminDashboardPage = () => {
                   <th>In Time</th>
                   <th>Expected Out</th>
                   <th>Actual Out</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,6 +188,14 @@ const AdminDashboardPage = () => {
                     <td>{formatDateTime(visitor.in_time)}</td>
                     <td>{formatDateTime(visitor.expected_out_time)}</td>
                     <td>{formatDateTime(visitor.actual_out_time)}</td>
+                    <td>
+                      <button 
+                        onClick={() => openDeleteModal(visitor)} 
+                        className="delete-button"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -155,6 +233,29 @@ const AdminDashboardPage = () => {
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={closeDeleteModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {visitorToDelete && (
+            <p>
+              Are you sure you want to delete visitor {visitorToDelete.full_name} 
+              (#{visitorToDelete.visitor_number})?
+            </p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeDeleteModal}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteVisitor}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

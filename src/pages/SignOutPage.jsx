@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { visitorApi } from '../services/api';
-import '../App.css';
+import { visitorApi } from '@/services/api';
 
 const SignOutPage = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -18,8 +17,7 @@ const SignOutPage = () => {
       const response = await visitorApi.signOut(data.visitorNumber);
       setVisitorData(response.data.data);
       setSuccess(true);
-      
-      // Redirect to home after 3 seconds
+
       setTimeout(() => {
         navigate('/');
       }, 3000);

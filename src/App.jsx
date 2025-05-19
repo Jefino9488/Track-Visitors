@@ -3,18 +3,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 import './App.css';
 import ErrorBoundary from './components/ErrorBoundary';
+import { AuthProvider, useAuth } from './services/Auth.jsx';
+import HomePage from '@/pages/HomePage';
+import SignInPage from '@/pages/SignInPage';
+import SignOutPage from '@/pages/SignOutPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
 
-// Context
-import { AuthProvider, useAuth } from './context/AuthContext';
-
-// Pages
-import HomePage from './pages/HomePage';
-import SignInPage from './pages/SignInPage';
-import SignOutPage from './pages/SignOutPage';
-import AdminLoginPage from './pages/AdminLoginPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-
-// Protected Route Component
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
 
@@ -49,7 +44,6 @@ function AppRoutes() {
 }
 
 function App() {
-    console.log('ToastContainer:', ToastContainer); // Debug to ensure it's defined
     return (
         <Router>
             <AuthProvider>
